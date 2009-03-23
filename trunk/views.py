@@ -118,32 +118,6 @@ def close_account(request, id=None, template_name="accounts/close_account.html")
 	return render_to_response(template_name, locals(),
 		context_instance=RequestContext(request))
 
-@permission_required("accounts.add_account")
-def update_account(request, id=None, template_name="accounts/account.html"):
-
-	try:
-		account = Account.objects.get(id=id)
-	except Account.DoesNotExist:
-		account = Account()
-
-	class AccountForm(forms.ModelForm):
-		class Meta:
-			model = Account
-			exclude = ["site", "closed_on"]
-
-	if request.method == "POST":
-		form = AccountForm(request.POST, instance=account)
-		if form.is_valid():
-			obj = form.save(commit=False)
-			obj.site = Site.objects.get_current()
-			obj.save()
-			return HttpResponseRedirect(reverse("summary"))
-	else:
-		form = AccountForm(instance=account)
-
-	return render_to_response(template_name, locals(),
-		context_instance=RequestContext(request))
-
 @permission_required("accounts.add_entry")
 def add_expense(request, template_name="accounts/add_expense.htm"):
 	ActionFormSet = inlineformset_factory(Entry, EntryAction, form=AssetActionForm)

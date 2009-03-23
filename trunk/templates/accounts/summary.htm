@@ -1,4 +1,4 @@
-{% extends "accounts/base.html" %}
+{% extends "base.html" %}
 {% load rollup accounts_tags %}
 
 {% block title %}{{ block.super }} - Summary{% endblock %}
@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<a href="{% url summary %}">Summary</a>
+<a href="{% url accounts-summary %}">Summary</a>
 {% endblock %}
 
 {% block content %}
@@ -33,7 +33,8 @@
 	</tr>
 </table>
 
-<table id="accounts"><tr>
+<table id="accounts">
+	<tr>
 		<td valign="top">
 			<table>
 				<thead>
@@ -48,15 +49,15 @@
 				{% for account in assets %}
 				<tr class="{% cycle 'even' 'odd' %}">
 					<td class="{{ account.type|lower }}">
-						<a href="{% url ledger account.pk %}">{{ account.name }}</a>
+						<a href="{% url accounts-ledger account.pk %}">{{ account.name }}</a>
 					</td>
 					<td class="money">
 						{% with account|monthly_balance as balance %}
 						<span style="font-size: 8pt;">{% if balance|gt:0 %}
 							(<span class="money positive">+{{ balance|floatformat:0 }}</span>)
-						{% else %}{% if balance|lt:0 %}
+							{% else %}{% if balance|lt:0 %}
 							(<span class="money negative">{{ balance|floatformat:0 }}</span>)
-						{% endif %}
+							{% endif %}
 						{% endif %}</span>
 						<strong class="money {% if account.has_normal_balance %}positive{% else %}negative{% endif %}">{{ account.normal_balance|rollup:"assets"|floatformat:0 }}</strong>
 						{% endwith %}
@@ -76,6 +77,17 @@
 				<thead>
 					<tr class="header">
 						<th>{{ type }}</th>
+						{% ifequal type "Expenses" %}
+						<td colspan="4" style="text-align: right;">
+							<a href="{% url accounts-add-expense %}">Record Expense</a>
+						</td>
+						{% endifequal %}
+
+						{% ifequal type "Revenue" %}
+						<td colspan="4" style="text-align: right;">
+							<a href="{% url accounts-add-revenue %}">Record Revenue</a>
+						</td>
+						{% endifequal %}
 					</tr>
 					<tr>
 						<td>Account</td>
@@ -93,7 +105,7 @@
 					{% with account|monthly_balance:2 as balance3 %}
 
 					<td class="{{ account.type|lower }}">
-						<a href="{% url ledger account.pk %}">{{ account.name }}</a>
+						<a href="{% url accounts-ledger account.pk %}">{{ account.name }}</a>
 					</td>
 
 					<td class="money {% if balance3|gte:0 %}positive{% else %}negative{% endif %}">
@@ -107,11 +119,11 @@
 					</td>
 
 					<td class="money positive">
-					{% if account.budgeted_limit %}
+						{% if account.budgeted_limit %}
 						{{ account.budgeted_limit|rollup:account.type|floatformat:"0" }}
-					{% endif %}
+						{% endif %}
 					</td>
-					
+
 					{% endwith %}
 					{% endwith %}
 					{% endwith %}
@@ -126,7 +138,13 @@
 					<td class="money total">{% rollup_total "%.0f" "monthly" %}</td>
 					<td class="money total">{% rollup_total "%.0f" "Expense" %}</td>
 				</tr>
-				
+
+				<tr>
+					<td colspan="5" style="text-align: right;">
+						<a href="{% url accounts-journal %}">View Journal</a>
+					</td>
+				</tr>
+
 				{% for type,accounts in oe.iteritems %}
 
 				{% if accounts.count %}
@@ -144,7 +162,7 @@
 				<tr class="{% cycle 'even' 'odd' %}">
 
 					<td colspan="3" class="{{ account.type|lower }}">
-						<a href="{% url ledger account.pk %}">{{ account.name }}</a>
+						<a href="{% url accounts-ledger account.pk %}">{{ account.name }}</a>
 					</td>
 					<td colspan="2" class="money {% if account.has_normal_balance %}positive{% else %}negative{% endif %}">
 						{{ account.normal_balance|rollup:"monthly"|default:""|floatformat:0 }}

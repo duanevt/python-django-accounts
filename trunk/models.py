@@ -68,9 +68,14 @@ class Account(models.Model):
 			AccountBalance(account=self, balance = last + current).save()
 
 		return round(last + current, 2)
-	
-	def normal_balance(self, as_of=datetime.datetime.now()):
+
+	def normal(self):
 		if self.type in ['Asset']:
+			return True
+		return False
+
+	def normal_balance(self, as_of=datetime.datetime.now()):
+		if self.normal():
 			balance = self.balance(as_of)
 		else: balance = -self.balance(as_of)
 
@@ -245,3 +250,9 @@ class EntryAction(models.Model):
 	
 	def __unicode__(self):
 		return u'%s: %s-%s' % (self.entry, self.account, self.amount)
+
+	def positive(self):
+		if self.amount > 0:
+			return self.amount
+		else:
+			return -self.amount

@@ -1,11 +1,16 @@
-{% extends "accounts/summary.htm" %}
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify adminmedia %}
 
-{% block title %}{{ block.super }} - Close Account{% endblock %}
+{% block title %}Close Account{{ block.super }}{% endblock %}
 
 {% block breadcrumbs %}
-	{{ block.super }}
-	<li><a href="{% url ledger account.pk %}">Ledger</a></li>
-	<li><a href="{% url accounts-close account.pk %}">Close</a></li>
+<div class="breadcrumbs">
+     <a href="../../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../../">Accounts</a> &rsaquo;
+     <a href="../../">Account</a> &rsaquo;
+     <a href="../">{{ account }}</a> &rsaquo;
+     Close Account
+</div>
 {% endblock %}
 
 {% block content %}

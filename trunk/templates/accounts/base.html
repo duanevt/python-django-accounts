@@ -1,18 +1,3 @@
 {% extends "base.html" %}
 
 {% block header %}{{ block.super }} - Accounts{% endblock %}
-
-{% block sidebar %}
-<ul>
-	<li>
-		<h2><strong>Navigation</strong></h2>
-		<ul>
-			<li><a href="{% url summary %}">Summary</a></li>
-			<li><a href="{% url journal %}">Journal</a></li>
-			<li><a href="{% url accounts-add-account %}">Add Account</a></li>
-			<li><a href="{% url add_revenue %}">Add Revenue</a></li>
-			<li><a href="{% url add_expense %}">Add Expense</a></li>
-		</ul>
-	</li>
-</ul>
-{% endblock %}
