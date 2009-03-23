@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+	<a href="{% url summary %}">Summary</a>
+</div>
+
+<form action="." method="post">
+<table>
+	{{ form }}
+{{ action_forms.management_form }}
+	<tr><td></td><td>
+	{% for form in action_forms.forms %}
+	{{ form.account }} - {{ form.amount }}<br />
+	{% endfor %}
+	</td></tr>
+	<tr><td></td><td><input type="submit" value="Save" /></td></tr>
+</table>
+</form>
+
+{% endblock %}

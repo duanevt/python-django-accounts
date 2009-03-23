@@ -1,0 +1,25 @@
+{% extends "accounts/summary.htm" %}
+
+{% block title %}{{ block.super }} - Close Account{% endblock %}
+
+{% block breadcrumbs %}
+	{{ block.super }}
+	<li><a href="{% url ledger account.pk %}">Ledger</a></li>
+	<li><a href="{% url accounts-close account.pk %}">Close</a></li>
+{% endblock %}
+
+{% block content %}
+<p>
+	Confirm closure of {{ account.name }} of ${{ account.normal_balance }}. {{ ex }}
+</p>
+
+<form action="." method="post">
+	<table>
+		{{ form }}
+		<tr>
+			<td></td>
+			<td><input type="submit" value="Close" /></td>
+		</tr>
+	</table>
+</form>
+{% endblock %}
