@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify adminmedia %}
+
+{% block title %}Add Revenue{{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Accounts</a> &rsaquo;
+     <a href="../">Entry</a> &rsaquo;
+     Add Revenue
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="." method="post">
+<table>
+	{{ form }}
+{{ action_forms.management_form }}
+	<tr><th></th>
+    <th>Extra Actions</th></tr>
+    <tr><td></td><td>
+	{% for form in action_forms.forms %}
+	{{ form.account }} - {{ form.amount }}<br />
+	{% endfor %}
+	</td></tr>
+	<tr><td></td><td><input type="submit" value="Save" /></td></tr>
+</table>
+</form>
+
+{% endblock %}

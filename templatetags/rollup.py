@@ -7,18 +7,29 @@ register = template.Library()
 
 totals = {}
 def rollup(arg, group="default"):
-	try:
-		totals[group] += arg
-	except:
-		totals[group] = arg
-	return arg
+    try:
+        group = str(group)
+        totals[group] += arg
+    except:
+        totals[group] = arg
+    return arg
 register.filter(rollup)
 
+def rollup_subtotal(format, group="default"):
+    try:
+        group = str(group)
+        retval = format % totals[group]
+    except Exception, ex:
+        retval = " - 0 - "
+    return retval
+register.simple_tag(rollup_subtotal)
+
 def rollup_total(format, group="default"):
-	try:
-		retval = format % totals[group]
-		totals[group] = 0
-	except Exception, ex:
-		retval = "%s: - 0 - " % ex
-	return retval
+    try:
+        group = str(group)
+        retval = format % totals[group]
+        totals[group] = 0
+    except Exception, ex:
+        retval = " - 0 - "
+    return retval
 register.simple_tag(rollup_total)
