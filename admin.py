@@ -50,9 +50,9 @@ class BudgetItem_Inline(admin.TabularInline):
 
 class AccountOptions(admin.ModelAdmin):
     search_fields = ['name']
-    list_filter = ['type']
+    list_filter = ['type', 'closed_on']
     list_display = ("name", "type", "budgeted_limit", "balance", "closed")
-    ordering = ("name", )
+    ordering = ("name", "closed_on")
 
     def get_urls(self):
         urls = super(AccountOptions, self).get_urls()
@@ -161,7 +161,6 @@ class EntryOptions(admin.ModelAdmin):
             url(r'^expense/$', self.admin_site.admin_view(self.expense), name="accounts-add-expense"),
             url(r'^revenue/$', self.admin_site.admin_view(self.revenue), name="accounts-add-revenue"),
         )
-
         return my_urls + urls
     
     @permission_required("accounts.add_entry")
@@ -255,6 +254,7 @@ class EntryOptions(admin.ModelAdmin):
 
         return render_to_response(template_name, locals(),
             context_instance=RequestContext(request))
+
 #-------------------------------------------------------------------------------
 
 admin.site.register(Account, AccountOptions)

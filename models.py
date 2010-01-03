@@ -19,7 +19,22 @@ from django.utils.safestring import mark_safe
 #matplotlib.use('Agg')
 #from pylab import *
 from dateutil.relativedelta import relativedelta    
-            
+
+class ReccuringTransaction(models.Model):
+    account = models.ForeignKey("Account")
+    minimun_amount = models.FloatField(default=0.0)
+    expected_amount = models.FloatField(default=0.0)
+    cycle = models.CharField(max_length=100, choices=(
+        ("monthly", "Monthly"),
+        ("yearly", "Yearly"),
+    ))
+    start_date = models.DateField(blank=True, null=True)
+    last_transaction = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    def is_due(self):
+        return 
+
 class Account(models.Model):
     type = models.CharField(max_length=15,
         choices=(("Asset", "Asset"),("Expense", "Expense"),("Revenue", "Revenue"),("Liability", "Liability"),("Equity", "Equity")))
