@@ -1,14 +1,11 @@
-from django.utils.datastructures import SortedDict
-import cgi
-import datetime
-import os
-
-from django.core.cache import cache
-from django import template
-from django.core.urlresolvers import reverse
-from django.utils.safestring import mark_safe
-from dateutil.relativedelta import relativedelta
 from accounts.models import *
+import datetime
+from dateutil.relativedelta import relativedelta
+from django import template
+from django.core.cache import cache
+from django.utils.datastructures import SortedDict
+from accounts.templatetags.rollup import rollup
+import os
 
 #import matplotlib
 #matplotlib.use('Agg')
@@ -30,6 +27,23 @@ def lt(val1, val2):
     return val1 < val2
 
 @register.filter
+def accounts_dataset(accounts, months=6):
+    dataset = []
+    totals = [None, [0 for x in range(months + 1)]]
+    for account in accounts.all():
+        stats = account_statistics(account, months)
+        row = (account, stats)
+        count = 0
+        for date, item in stats.iteritems():
+            if item:
+                totals[1][count] += item
+            count += 1
+        dataset += [row]
+    dataset += [totals]
+    
+    return dataset
+
+@register.filter
 def mini_monthly_graph(accounts, name):
     name = "monthly_%s" % name
     return mini_graph(accounts, name, True)
@@ -41,9 +55,9 @@ def monthly_graph():
         retval = cache.get(name)
     else:
         retval = graph(accounts,
-            name=name,
-            bymonth=True
-        )
+                       name=name,
+                       bymonth=True
+                       )
         cache.set(name, retval, 5)
     return retval
 
@@ -54,13 +68,13 @@ def mini_graph(accounts, name, bymonth=False):
         retval = cache.get(name)
     else:
         retval = graph(accounts,
-            name=name,
-            start=datetime.datetime.now() - relativedelta(months=12),
-            width=1.0,
-            height=.25,
-            decorations=False,
-            bymonth=bymonth
-        )
+                       name=name,
+                       start=datetime.datetime.now() - relativedelta(months=12),
+                       width=1.0,
+                       height=.25,
+                       decorations=False,
+                       bymonth=bymonth
+                       )
         cache.set(name, retval, 5)
     return retval
 
@@ -81,10 +95,10 @@ def graph(accounts, name, start=None, end=None, width=5, height=3.5, aggregate=T
 
         # get all applicable actions
         actions = EntryAction.objects.filter(
-            account__in=accounts,
-            entry__date__gte=start,
-            entry__date__lte=end
-        ).order_by("entry__date").select_related()
+                                             account__in=accounts,
+                                             entry__date__gte=start,
+                                             entry__date__lte=end
+                                             ).order_by("entry__date").select_related()
         
         nodes = []
         dates = []
@@ -122,7 +136,7 @@ def graph(accounts, name, start=None, end=None, width=5, height=3.5, aggregate=T
                 dates += [date]
                 nodes += [node]
 
-        co = (1.0, 1.0, 1.0, 0.0, )
+        co = (1.0, 1.0, 1.0, 0.0,)
         fig = figure(figsize=[width, height], facecolor=co, edgecolor=co)
         ax = fig.add_subplot(111, frameon=False, axis_bgcolor="transparent")
         ax.plot_date(dates, nodes, '-', alpha=0.75)
@@ -148,8 +162,8 @@ def graph(accounts, name, start=None, end=None, width=5, height=3.5, aggregate=T
 
         # Render the graph
         savefig(
-            os.path.join(settings.MEDIA_ROOT, name).encode("utf-8")
-        )
+                os.path.join(settings.MEDIA_ROOT, name).encode("utf-8")
+                )
         close()
 
         return os.path.join(settings.MEDIA_URL, name)
@@ -200,7 +214,7 @@ def account_statistics(accounts, months_back=6):
         count += 1
         total += cur
         stats[get_months_back(x)] = cur
-    stats["Avg"] = total/count
+    stats["Avg"] = total / count
     return stats
 
 @register.filter("range")

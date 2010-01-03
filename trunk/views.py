@@ -19,6 +19,7 @@ def summary(request, template_name="accounts/summary.html"):
     assets = accounts.filter(type="Asset", closed_on=None)
     expenses = accounts.filter(type="Expense", closed_on=None)
     revenues = accounts.filter(type="Revenue", closed_on=None)
+    income_accounts = accounts.filter(type__in=("Expense", "Revenue"), closed_on=None)
     liabilities = accounts.filter(type="Liability", closed_on=None)
     equity = accounts.filter(type="Equity", closed_on=None)
 

@@ -5,6 +5,19 @@
 
 {% block extrahead %}
 <link href="/media/css/accounts.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    $(function() {
+        $(".account-group h3").click(function (e) {
+            panel = $(this).parent().find("table")
+            panel.stop()
+            if (panel.is(":visible")) {
+                panel.fadeOut("slow")
+            } else {
+                panel.fadeIn("slow")
+            }
+        })
+    })
+</script>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -92,7 +105,7 @@
             <tr>
                 <td colspan="2" style="text-align: right;">
                     <a href="/admin/accounts/">Administer Accounts</a> |
-                    <a href="{% url accounts-journal %}">View Journal</a>
+                    <a href="/admin/accounts/entry/">View Journal</a>
                 </td>
             </tr>
 
@@ -147,66 +160,60 @@
             </tr>
         </table>
     </div>
-    <div>
+
+    <div id="expense-list" class="account-group">
+    <div class="header">Expenses and Income: 
+        <a href="{% url admin:accounts-add-expense %}">Add Expense</a> |
+        <a href="{% url admin:accounts-add-revenue %}">Add Revenue</a>
+    </div>
         <table>
-            {% for type,accounts in income.iteritems %}
-
-            <thead>
-                <tr class="header">
-                    <th colspan="5">
-                        {{ type }}
-                        {% ifequal type "Expenses" %}
-                        - <a href="{% url admin:accounts-add-expense %}">Add</a>
-                        {% endifequal %}
-                        {% ifequal type "Revenue" %}
-                        - <a href="{% url admin:accounts-add-revenue %}">Add</a>
-                        {% endifequal %}
-                    </th>
-                </tr>
-                <tr>
-                    <th>Account</th>
-                    <th>{{ 5|get_months_back|date:"M" }}</th>
-                    <th>{{ 4|get_months_back|date:"M" }}</th>
-                    <th>{{ 3|get_months_back|date:"M" }}</th>
-                    <th>{{ 2|get_months_back|date:"M" }}</th>
-                    <th>{{ 1|get_months_back|date:"M" }}</th>
-                    <th>{{ 0|get_months_back|date:"M" }}</th>
-                    <th><strong>Avg</strong></th>
-                </tr>
-            </thead>
-            {% for account in accounts %}
-
-            <tr class="{% cycle 'even' 'odd' %}">
-                <td class="{{ account.type|lower }}">
-                    <a href="{% url accounts-ledger account.pk %}">{{ account.name }}</a>
-                </td>
-
-                {% with account|account_statistics as stats %}
-                {% for month,balance in stats.items %}
-                <td class="{{ month }} money {% if balance|gte:0 %}positive{% else %}negative{% endif %}">
-                    {{ balance|rollup:forloop.counter|default:""|floatformat:0 }}
-                </td>
-                {% endfor %}
-                {% endwith %}
+            <tr>
+                <th>Accounts</th>
+                <th>{{ 5|get_months_back|date:"M" }}</th>
+                <th>{{ 4|get_months_back|date:"M" }}</th>
+                <th>{{ 3|get_months_back|date:"M" }}</th>
+                <th>{{ 2|get_months_back|date:"M" }}</th>
+                <th>{{ 1|get_months_back|date:"M" }}</th>
+                <th>{{ 0|get_months_back|date:"M" }}</th>
+                <th><strong>Avg</strong></th>
             </tr>
-            {% endfor %}
-            {% ifequal type "Expenses" %}
-            <tr class="subtotal">
-                <td class="right">{{ type }} Total:</td>
-                {% for x in 6|range %}
-                <td class="money">{% rollup_subtotal "%.0f" forloop.counter %}</td>
+            {% for account, stats in income_accounts|accounts_dataset:6 %}
+            {% if account %}
+            <tr class="{% cycle 'even' 'odd' %}{% ifchanged account.type %} divider{% endifchanged %}">
+                <td class="name">{{ account.name }}</td>
+                {% for date, item in stats.items %}
+                {% if not forloop.last %}
+                    {% if item|gt:0 %}
+                    <td class="amount positive money">{{ item|floatformat:0 }}</td>
+                    {% else %}{% if item|lt:0 %}
+                    <td class="amount negative money">{{ item|floatformat:0 }}</td>
+                    {% else %}
+                    <td class="amount zero money">{{ item|floatformat:0 }}</td>
+                    {% endif %}{% endif %}
+                {% else %}
+                <td class="amount average money">{{ item|floatformat:0 }}</td>
+                {% endif %}
                 {% endfor %}
-                <td class="money"><em>{% rollup_subtotal "%.0f" "7" %}</em></td>
             </tr>
             {% else %}
-            <tr class="total">
-                <td class="right">Total:</td>
-                {% for x in 6|range %}
-                <td class="money">{% rollup_total "%.0f" forloop.counter %}</td>
+            <tr class="totals">
+                <td class="name">Totals:</td>
+                {% for item in stats %}
+                {% if not forloop.last %}
+                    {% if item|gt:0 %}
+                    <td class="amount positive money">{{ item|floatformat:0 }}</td>
+                    {% else %}{% if item|lt:0 %}
+                    <td class="amount negative money">{{ item|floatformat:0 }}</td>
+                    {% else %}
+                    <td class="amount zero money">{{ item|floatformat:0 }}</td>
+                    {% endif %}
+                    {% endif %}
+                {% else %}
+                <td class="amount average money">{{ item|floatformat:0 }}</td>
+                {% endif %}
                 {% endfor %}
-                <td class="money"><em>{% rollup_total "%.0f" "7" %}</em></td>
             </tr>
-            {% endifequal %}
+            {% endif %}
             {% endfor %}
         </table>
     </div>

@@ -6,7 +6,11 @@ import cgi
 register = template.Library()
 
 totals = {}
-def rollup(arg, group="default"):
+def rollup(arg=None, group="default"):
+    if arg is None and group in totals:
+        total = totals[group] or 0
+        totals[group] = 0
+        return total
     try:
         group = str(group)
         totals[group] += arg

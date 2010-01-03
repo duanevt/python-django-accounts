@@ -13,7 +13,7 @@
 {% endblock %}
 {% block content %}
 
-<form action="." method="post">
+<form action="." method="post">{% csrf_token %}
 <table>
 	{{ form }}
 {{ action_forms.management_form }}
